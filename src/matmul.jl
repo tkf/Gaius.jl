@@ -11,6 +11,7 @@ function _mul!(threading::Threading, C, A, B, sz)
     elseif n <  sz+8 && k >= sz+8 && m <  sz+8
         block_covec_vec_mul!(threading, C, A, B, sz)
     else
+        tapir_yield()
         gemm_kernel!(C, A, B)
     end
 end
@@ -28,6 +29,7 @@ function _mul_add!(threading::Threading, C, A, B, sz, ::Val{factor} = Val(1)) wh
     elseif n <  sz+8 && k >= sz+8 && m <  sz+8
         block_covec_vec_mul_add!(threading, C, A, B, sz, Val(factor))
     else
+        tapir_yield()
         add_gemm_kernel!(C, A, B, Val(factor))
     end
 end
@@ -39,6 +41,7 @@ function _mul!(threading::Threading, C::VecTypes{T}, A::MatTypes{T}, B::VecTypes
     elseif n <  sz+8 && k >= sz+8
         block_covec_vec_mul!(threading, C, A, B, sz)
     else
+        tapir_yield()
         gemm_kernel!(C, A, B)
     end
 end
@@ -50,6 +53,7 @@ function _mul_add!(threading::Threading, C::VecTypes{T}, A::MatTypes{T}, B::VecT
     elseif n <  sz+8 && k >= sz+8
         block_covec_vec_mul_add!(threading, C, A, B, sz, Val(factor))
     else
+        tapir_yield()
         add_gemm_kernel!(C, A, B, Val(factor))
     end
 end
@@ -61,6 +65,7 @@ function _mul!(threading::Threading, C::CoVecTypes{T}, A::CoVecTypes{T}, B::MatT
     elseif k >= sz+8 && m <  sz+8
         block_covec_vec_mul!(threading, C, A, B, sz)
     else
+        tapir_yield()
         gemm_kernel!(C, A, B)
     end
 end
@@ -72,6 +77,7 @@ function _mul_add!(threading::Threading, C::CoVecTypes{T}, A::CoVecTypes{T}, B::
     elseif k >= sz+8 && m <  sz+8
         block_covec_vec_mul!(threading, C, A, B, sz, Val(factor))
     else
+        tapir_yield()
         add_gemm_kernel!(C, A, B, Val(factor))
     end
 end
