@@ -9,17 +9,17 @@
         B11 = B[1:sz,     1:sz]; B12 = B[1:sz,     sz+1:end]
         B21 = B[sz+1:end, 1:sz]; B22 = B[sz+1:end, sz+1:end]
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             #_mul!(multithreaded,     C11, A11, B11, sz)
             gemm_kernel!(C11, A11, B11)
             _mul_add!(multithreaded, C11, A12, B21, sz)
         end
-        Threads.@spawn begin
+        Tapir.@spawn begin
             _mul!(multithreaded,     C12, A11, B12, sz)
             _mul_add!(multithreaded, C12, A12, B22, sz)
         end
-        Threads.@spawn begin
+        Tapir.@spawn begin
             _mul!(multithreaded,     C21, A21, B11, sz)
             _mul_add!(multithreaded, C21, A22, B21, sz)
         end
@@ -61,8 +61,8 @@ function block_mat_vec_mul!(::Multithreaded, C, A, B, sz)
         B11 = B[1:sz,     1:end];
         B21 = B[sz+1:end, 1:end];
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             #_mul!(multithreaded,     C11, A11, B11, sz)
             gemm_kernel!(C11, A11, B11)
             _mul_add!(multithreaded, C11, A12, B21, sz)
@@ -101,8 +101,8 @@ function block_mat_vec_mul!(::Multithreaded, C::VecTypes, A, B::VecTypes, sz)
         B11 = B[1:sz    ];
         B21 = B[sz+1:end];
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             gemm_kernel!(C11, A11, B11)
             _mul_add!(multithreaded, C11, A12, B21, sz)
         end
@@ -137,8 +137,8 @@ function block_covec_mat_mul!(::Multithreaded, C, A, B, sz)
         B11 = B[1:sz,     1:sz]; B12 = B[1:sz,     sz+1:end]
         B21 = B[sz+1:end, 1:sz]; B22 = B[sz+1:end, sz+1:end]
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             #_mul!(multithreaded,     C11, A11, B11, sz)
             gemm_kernel!(C11, A11, B11)
             _mul_add!(multithreaded, C11, A12, B21, sz)
@@ -174,15 +174,15 @@ function block_vec_covec_mul!(::Multithreaded, C, A, B, sz)
 
         B11 = B[1:end,     1:sz]; B12 = B[1:end,     sz+1:end]
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             #_mul!(multithreaded,     C11, A11, B11, sz)
             gemm_kernel!(C11, A11, B11)
         end
-        Threads.@spawn begin
+        Tapir.@spawn begin
             _mul!(multithreaded, C12, A11, B12, sz)
         end
-        Threads.@spawn begin
+        Tapir.@spawn begin
             _mul!(multithreaded, C21, A21, B11, sz)
         end
         _mul!(multithreaded, C22, A21, B12, sz)
@@ -240,16 +240,16 @@ end
         B11 = B[1:sz,     1:sz]; B12 = B[1:sz,     sz+1:end]
         B21 = B[sz+1:end, 1:sz]; B22 = B[sz+1:end, sz+1:end]
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             add_gemm_kernel!(C11, A11, B11, Val(factor))
             _mul_add!(multithreaded, C11, A12, B21, sz, Val(factor))
         end
-        Threads.@spawn begin
+        Tapir.@spawn begin
             _mul_add!(multithreaded, C12, A11, B12, sz, Val(factor))
             _mul_add!(multithreaded, C12, A12, B22, sz, Val(factor))
         end
-        Threads.@spawn begin
+        Tapir.@spawn begin
             _mul_add!(multithreaded, C21, A21, B11, sz, Val(factor))
             _mul_add!(multithreaded, C21, A22, B21, sz, Val(factor))
         end
@@ -290,8 +290,8 @@ function block_mat_vec_mul_add!(::Multithreaded, C, A, B, sz, ::Val{factor} = Va
         B11 = B[1:sz,     1:end];
         B21 = B[sz+1:end, 1:end];
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             add_gemm_kernel!(C11, A11, B11, Val(factor))
             _mul_add!(multithreaded, C11, A12, B21, sz, Val(factor))
         end
@@ -328,8 +328,8 @@ function block_mat_vec_mul_add!(::Multithreaded, C::VecTypes, A, B::VecTypes, sz
         B11 = B[1:sz    ];
         B21 = B[sz+1:end];
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             add_gemm_kernel!(C11, A11, B11, Val(factor))
             _mul_add!(multithreaded, C11, A12, B21, sz, Val(factor))
         end
@@ -364,8 +364,8 @@ function block_covec_mat_mul_add!(::Multithreaded, C, A, B, sz, ::Val{factor} = 
         B11 = B[1:sz,     1:sz]; B12 = B[1:sz,     sz+1:end]
         B21 = B[sz+1:end, 1:sz]; B22 = B[sz+1:end, sz+1:end]
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             add_gemm_kernel!(C11, A11, B11, Val(factor))
             _mul_add!(multithreaded, C11, A12, B21, sz, Val(factor))
         end
@@ -399,14 +399,14 @@ function block_vec_covec_mul_add!(::Multithreaded, C, A, B, sz, ::Val{factor} = 
 
         B11 = B[1:end,    1:sz]; B12 = B[1:end,    sz+1:end]
     end
-    @sync begin
-        Threads.@spawn begin
+    Tapir.@sync begin
+        Tapir.@spawn begin
             add_gemm_kernel!(C11, A11, B11, Val(factor))
         end
-        Threads.@spawn begin
+        Tapir.@spawn begin
             _mul_add!(multithreaded, C12, A11, B12, sz, Val(factor))
         end
-        Threads.@spawn begin
+        Tapir.@spawn begin
             _mul_add!(multithreaded, C21, A21, B11, sz, Val(factor))
         end
         _mul_add!(multithreaded, C22, A21, B12, sz, Val(factor))

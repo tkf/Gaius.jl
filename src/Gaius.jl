@@ -1,5 +1,7 @@
 module Gaius
 
+using Base.Experimental: Tapir
+
 import LinearAlgebra
 import LoopVectorization
 import StructArrays
