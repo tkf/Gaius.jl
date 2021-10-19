@@ -14,6 +14,8 @@ using StructArrays: StructArray
 using UnsafeArrays: @uviews, UnsafeArray
 using VectorizationBase: AbstractStridedPointer, gesp, vload, vstore!
 
+using TaskDAGRecorders: Threads, @sync
+
 export t_blocked_mul
 export t_blocked_mul!
 
