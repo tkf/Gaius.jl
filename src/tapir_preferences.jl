@@ -1,6 +1,14 @@
 using Preferences: @load_preference, @set_preferences!, @delete_preferences!
 
-const TAPIR_SCHEDULER_NAMES = ("default", "workstealing", "depthfirst")
+const TAPIR_SCHEDULER_NAMES = (
+    # Use native task scheduler:
+    "default",
+    # Defined in TapirSchedulers:
+    "workstealing",
+    "depthfirst",
+    "constantpriority",
+    "randompriority",
+)
 
 function validate_tapir_scheduler(name; warn = false)
     if !(name in TAPIR_SCHEDULER_NAMES)
@@ -22,15 +30,24 @@ const TAPIR_SCHEDULER_CONFIG =
 if TAPIR_SCHEDULER_CONFIG == "default"
     const var"@tapir_sync" = Tapir.var"@sync"
 else
-    using TapirSchedulers: @sync_ws, @sync_df
+    import TapirSchedulers
     if TAPIR_SCHEDULER_CONFIG == "workstealing"
-        const var"@tapir_sync" = var"@sync_ws"
+        const var"@tapir_sync" = TapirSchedulers.var"@sync_ws"
+    elseif TAPIR_SCHEDULER_CONFIG == "depthfirst"
+        const var"@tapir_sync" = TapirSchedulers.var"@sync_df"
+    elseif TAPIR_SCHEDULER_CONFIG == "constantpriority"
+        const var"@tapir_sync" = TapirSchedulers.var"@sync_cp"
+    elseif TAPIR_SCHEDULER_CONFIG == "randompriority"
+        const var"@tapir_sync" = TapirSchedulers.var"@sync_rp"
     else
-        const var"@tapir_sync" = var"@sync_df"
+        @error "unknown scheduler: $TAPIR_SCHEDULER_CONFIG"
+        macro tapir_sync(_ignored...)
+            :(error("unknown scheduler: $TAPIR_SCHEDULER_CONFIG"))
+        end
     end
 end
 # Note: ATM, we can't update this without reboot (or explicit revise) since
-# `@sync_df` contains custom code.
+# `@sync_df` etc. contains custom code.
 
 function set_tapir_scheduler(name)
     name = validate_tapir_scheduler(name)
