@@ -12,7 +12,7 @@ const TAPIR_SCHEDULER_NAMES = (
 
 function validate_tapir_scheduler(name; warn = false)
     if !(name in TAPIR_SCHEDULER_NAMES)
-        msg = ""
+        msg = "Unsupported scheduler: $name"
         if warn
             @warn "$msg"
             return "default"
