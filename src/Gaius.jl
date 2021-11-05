@@ -1,6 +1,6 @@
 module Gaius
 
-using Base.Experimental: Tapir
+using NestedTasks: Threads, @sync
 
 import LinearAlgebra
 import LoopVectorization
@@ -19,7 +19,6 @@ using VectorizationBase: AbstractStridedPointer, gesp, vload, vstore!
 export t_blocked_mul
 export t_blocked_mul!
 
-include("tapir_preferences.jl")
 include("global_constants.jl")
 include("types.jl")
 
