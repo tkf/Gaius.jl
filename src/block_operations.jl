@@ -47,8 +47,7 @@ end
         B11 = B[1:sz,     1:sz]; B12 = B[1:sz,     sz+1:end]
         B21 = B[sz+1:end, 1:sz]; B22 = B[sz+1:end, sz+1:end]
     end
-    #_mul!(singlethreaded,     C11, A11, B11)
-    gemm_kernel!(C11, A11, B11)
+    _mul!(singlethreaded,     C11, A11, B11)
     _mul_add!(singlethreaded, C11, A12, B21)
     _mul!(singlethreaded,     C12, A11, B12)
     _mul_add!(singlethreaded, C12, A12, B22)
@@ -97,8 +96,7 @@ function block_mat_vec_mul!(singlethreaded::Singlethreaded, C, A, B)
         B11 = B[1:sz,     1:end];
         B21 = B[sz+1:end, 1:end];
     end
-    #_mul!(singlethreaded,     C11, A11, B11)
-    gemm_kernel!(C11, A11, B11)
+    _mul!(singlethreaded,     C11, A11, B11)
     _mul_add!(singlethreaded, C11, A12, B21)
     _mul!(singlethreaded,     C21, A21, B11)
     _mul_add!(singlethreaded, C21, A22, B21)
@@ -143,7 +141,7 @@ function block_mat_vec_mul!(singlethreaded::Singlethreaded, C::VecTypes, A, B::V
         B11 = B[1:sz    ];
         B21 = B[sz+1:end];
     end
-    gemm_kernel!(C11, A11, B11)
+    _mul!(singlethreaded,     C11, A11, B11)
     _mul_add!(singlethreaded, C11, A12, B21)
     _mul!(singlethreaded,     C21, A21, B11)
     _mul_add!(singlethreaded, C21, A22, B21)
@@ -184,8 +182,7 @@ function block_covec_mat_mul!(singlethreaded::Singlethreaded, C, A, B)
         B11 = B[1:sz,     1:sz]; B12 = B[1:sz,     sz+1:end]
         B21 = B[sz+1:end, 1:sz]; B22 = B[sz+1:end, sz+1:end]
     end
-    #_mul!(threading,     C11, A11, B11)
-    gemm_kernel!(C11, A11, B11)
+    _mul!(singlethreaded,     C11, A11, B11)
     _mul_add!(singlethreaded, C11, A12, B21)
     _mul!(singlethreaded,     C12, A11, B12)
     _mul_add!(singlethreaded, C12, A12, B22)
@@ -233,8 +230,7 @@ function block_vec_covec_mul!(singlethreaded::Singlethreaded, C, A, B)
 
         B11 = B[1:end,     1:sz]; B12 = B[1:end,     sz+1:end]
     end
-    #_mul!(singlethreaded,     C11, A11, B11)
-    gemm_kernel!(C11, A11, B11)
+    _mul!(singlethreaded, C11, A11, B11)
     _mul!(singlethreaded, C12, A11, B12)
     _mul!(singlethreaded, C21, A21, B11)
     _mul!(singlethreaded, C22, A21, B12)
@@ -248,8 +244,7 @@ function block_covec_vec_mul!(threading::Threading, C, A, B)
         B11 = B[1:sz,     1:end];
         B21 = B[sz+1:end, 1:end];
     end
-    gemm_kernel!(C, A11, B11)
-    #_mul!(threading,     C, A11, B11)
+    _mul!(threading,     C, A11, B11)
     _mul_add!(threading, C, A12, B21)
 end
 
@@ -261,7 +256,7 @@ function block_covec_vec_mul!(threading::Threading, C::VecTypes, A, B::VecTypes)
         B11 = B[1:sz    ];
         B21 = B[sz+1:end];
     end
-    gemm_kernel!(C, A11, B11)
+    _mul!(threading,     C, A11, B11)
     _mul_add!(threading, C, A12, B21)
 end
 
@@ -314,7 +309,7 @@ end
         B11 = B[1:sz,     1:sz]; B12 = B[1:sz,     sz+1:end]
         B21 = B[sz+1:end, 1:sz]; B22 = B[sz+1:end, sz+1:end]
     end
-    add_gemm_kernel!(C11, A11, B11, Val(factor))
+    _mul_add!(singlethreaded, C11, A11, B11, Val(factor))
     _mul_add!(singlethreaded, C11, A12, B21, Val(factor))
     _mul_add!(singlethreaded, C12, A11, B12, Val(factor))
     _mul_add!(singlethreaded, C12, A12, B22, Val(factor))
@@ -363,7 +358,7 @@ function block_mat_vec_mul_add!(singlethreaded::Singlethreaded, C, A, B, ::Val{f
         B11 = B[1:sz,     1:end];
         B21 = B[sz+1:end, 1:end];
     end
-    add_gemm_kernel!(C11, A11, B11, Val(factor))
+    _mul_add!(singlethreaded, C11, A11, B11, Val(factor))
     _mul_add!(singlethreaded, C11, A12, B21, Val(factor))
     _mul_add!(singlethreaded, C21, A21, B11, Val(factor))
     _mul_add!(singlethreaded, C21, A22, B21, Val(factor))
@@ -408,7 +403,7 @@ function block_mat_vec_mul_add!(singlethreaded::Singlethreaded, C::VecTypes, A, 
         B11 = B[1:sz    ];
         B21 = B[sz+1:end];
     end
-    add_gemm_kernel!(C11, A11, B11, Val(factor))
+    _mul_add!(singlethreaded, C11, A11, B11, Val(factor))
     _mul_add!(singlethreaded, C11, A12, B21, Val(factor))
     _mul_add!(singlethreaded, C21, A21, B11, Val(factor))
     _mul_add!(singlethreaded, C21, A22, B21, Val(factor))
@@ -449,7 +444,7 @@ function block_covec_mat_mul_add!(singlethreaded::Singlethreaded, C, A, B, ::Val
         B11 = B[1:sz,     1:sz]; B12 = B[1:sz,     sz+1:end]
         B21 = B[sz+1:end, 1:sz]; B22 = B[sz+1:end, sz+1:end]
     end
-    add_gemm_kernel!(C11, A11, B11, Val(factor))
+    _mul_add!(singlethreaded, C11, A11, B11, Val(factor))
     _mul_add!(singlethreaded, C11, A12, B21, Val(factor))
     _mul_add!(singlethreaded, C12, A11, B12, Val(factor))
     _mul_add!(singlethreaded, C12, A12, B22, Val(factor))
@@ -497,7 +492,7 @@ function block_vec_covec_mul_add!(singlethreaded::Singlethreaded, C, A, B, ::Val
 
         B11 = B[1:end,    1:sz]; B12 = B[1:end,    sz+1:end]
     end
-    add_gemm_kernel!(C11, A11, B11, Val(factor))
+    _mul_add!(singlethreaded, C11, A11, B11, Val(factor))
     _mul_add!(singlethreaded, C12, A11, B12, Val(factor))
     _mul_add!(singlethreaded, C21, A21, B11, Val(factor))
     _mul_add!(singlethreaded, C22, A21, B12, Val(factor))
@@ -511,7 +506,7 @@ function block_covec_vec_mul_add!(threading::Threading, C, A, B, ::Val{factor} =
         B11 = B[1:sz,     1:end];
         B21 = B[sz+1:end, 1:end];
     end
-    add_gemm_kernel!(C, A11, B11, Val(factor))
+    _mul_add!(threading, C, A11, B11, Val(factor))
     _mul_add!(threading, C, A12, B21, Val(factor))
 end
 
@@ -523,6 +518,6 @@ function block_covec_vec_mul_add!(threading::Threading, C::VecTypes, A, B::VecTy
         B11 = B[1:sz    ];
         B21 = B[sz+1:end];
     end
-    add_gemm_kernel!(C, A11, B11, Val(factor))
+    _mul_add!(threading, C, A11, B11, Val(factor))
     _mul_add!(threading, C, A12, B21, Val(factor))
 end
